@@ -1,9 +1,11 @@
 import React, {useState} from "react"
 
-const useDimensions = () => {
-    const [dimensions, setDimensions] = useState({
+const useDimensions = (defaultDimensions) => {
+    const [dimensions, setDimensions] = useState(defaultDimensions ? defaultDimensions : {
         height: 0,
-        width: 0
+        width: 0,
+        x: 0,
+        y: 0
     })
 
     const onChangeOf = (type) => (e) => {

@@ -21,6 +21,7 @@ const ImageCrop = ({imageUrl, dimensions, onChange}) => {
         >
             Next
         </button>
+        <br />
         {imageUrl ? (
             <ReactCrop
                 crop={crop}
