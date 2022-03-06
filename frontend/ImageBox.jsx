@@ -8,7 +8,9 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     const [boxes, setBoxes] = useState([])
     const [boxNumber, setBoxNumber] = useState(0)
     const [boxOptions, setBoxOptions] = useState(<div></div>)
+
     console.log(dimensions, crop, completedCrop, size)
+    const pixelsToInch = (size.height/dimensions.height + size.width/dimensions.width)/2
 
     const imageRef = useRef()
 
@@ -30,14 +32,24 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     }
 
     const renderBoxOptions = (id, dims, setDims) => {
-        console.log("BOX OPTIONS", id, dims)
+        console.log("BOX OPTIONS", id, dims, size, dimensions, size.height/dimensions.height, size.width/dimensions.width, pixelsToInch)
         setBoxOptions(<div>
             Box Number: {id+1}
             <br />
             <SizeSelect 
                 key={JSON.stringify({dims, id, date: new Date()})}
-                defaultDimensions={dims} 
-                onChange={setDims} 
+                defaultDimensions={{
+                    x: dims.x/pixelsToInch, 
+                    y: dims.y/pixelsToInch, 
+                    width: dims.width/pixelsToInch, 
+                    height: dims.height/pixelsToInch
+                }} 
+                onChange={(newDims) => setDims({
+                    x: newDims.x*pixelsToInch, 
+                    y: newDims.y*pixelsToInch, 
+                    width: newDims.width*pixelsToInch, 
+                    height: newDims.height*pixelsToInch
+                })} 
                 includeCoordinates 
                 label="Resize" 
             />
@@ -45,6 +57,8 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     }
     
     return <div id="imgbox">
+        <div>{dimensions.width} in x {dimensions.height} in</div>
+        <br/>
         <img 
             src={croppedImage} 
             id="imgbound"

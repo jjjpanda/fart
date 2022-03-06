@@ -11,14 +11,15 @@ const Box = ({defaultDimensions, onDimChange}) => {
     }, [dimensions])
 
     return <Rnd
+        key={`${new Date()}-${JSON.stringify(dimensions)}-RESIZABLE`}
         default={{
             x: dimensions.x,
             y: dimensions.y,
             width: dimensions.width,
             height: dimensions.height,
         }}
-        minWidth={100}
-        minHeight={100}
+        minWidth={10}
+        minHeight={10}
         bounds="#imgbound"
         style={{border: "medium dashed white"}}
         onDragStop={(e,d) => {
