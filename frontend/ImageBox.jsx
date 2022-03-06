@@ -24,7 +24,12 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     const addBox = () => {
         setBoxes(oldBoxes => ([...oldBoxes, 
             <Box
-                defaultDimensions={{width: size.width/10, height: size.height/10, x: 0, y: 0}} 
+                defaultDimensions={{
+                    width: size.width/10, 
+                    height: size.height/10, 
+                    x: 0, 
+                    y: 0
+                }} 
                 onDimChange={(dims, setDims) => renderBoxOptions(boxNumber, dims, setDims)}
             />
         ]))
@@ -45,10 +50,10 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
                     height: dims.height/pixelsToInch
                 }} 
                 onChange={(newDims) => setDims({
-                    x: newDims.x*pixelsToInch, 
-                    y: newDims.y*pixelsToInch, 
-                    width: newDims.width*pixelsToInch, 
-                    height: newDims.height*pixelsToInch
+                    x: Math.min(newDims.x*pixelsToInch, size.width - newDims.width*pixelsToInch), 
+                    y: Math.min(newDims.y*pixelsToInch, size.height - newDims.height*pixelsToInch), 
+                    width: Math.min(newDims.width*pixelsToInch, size.width - Math.min(newDims.x*pixelsToInch, size.width - newDims.width*pixelsToInch)), 
+                    height: Math.min(newDims.height*pixelsToInch, size.height - Math.min(newDims.y*pixelsToInch, size.height - newDims.height*pixelsToInch))
                 })} 
                 includeCoordinates 
                 label="Resize" 
@@ -57,15 +62,15 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     }
     
     return <div id="imgbox">
-        <div>{dimensions.width} in x {dimensions.height} in</div>
-        <br/>
+       
         <img 
             src={croppedImage} 
             id="imgbound"
-            className={"center-fit"} 
             ref={imageRef}
             onLoad={onLoad}
         />
+        
+         <div>{dimensions.width} in x {dimensions.height} in</div>
         <br />
         <button onClick={addBox}>ADD BOX</button>
         <br />

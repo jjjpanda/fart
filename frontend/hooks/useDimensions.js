@@ -13,7 +13,7 @@ const useDimensions = (defaultDimensions) => {
         console.log(type, value)
         setDimensions((oldDim) => ({
             ...oldDim,
-            [type]: parseInt(value)
+            [type]: parseFloat(value)
         }))
     }
 
