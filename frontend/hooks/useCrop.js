@@ -29,9 +29,9 @@ const useCrop = (dimensions) => {
 
     const updateCropPreview = useCallback(() => {
         if (completedCrop && previewCanvasRef.current && imgRef.current) {
-            cropPreview(imgRef.current, previewCanvasRef.current, completedCrop, 1, 0)
+            cropPreview(imgRef.current, previewCanvasRef.current, completedCrop)
         }
-    }, [completedCrop, 1, 0])
+    }, [completedCrop])
 
     useEffect(() => {
         updateCropPreview()

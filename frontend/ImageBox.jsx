@@ -1,9 +1,11 @@
 import React, {useRef, useState} from "react"
+import useCrop from "./hooks/useCrop"
 import Box from './Box'
 import SizeSelect from "./SizeSelect"
 import useDimensions from "./hooks/useDimensions"
 
 const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
+    const [u, sU, sC, setCompletedCrop, previewCanvasRef, onImageLoad] = useCrop(dimensions);
     const [size, setSize] = useDimensions()
     const [boxes, setBoxes] = useState([])
     const [boxNumber, setBoxNumber] = useState(0)
@@ -14,11 +16,12 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
 
     const imageRef = useRef()
 
-    const onLoad = () => {
+    const onLoad = (e) => {
         setSize({
             width: imageRef.current.width,
             height: imageRef.current.height
         })
+        onImageLoad(e)
     }
 
     const addBox = () => {
@@ -38,6 +41,7 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
 
     const renderBoxOptions = (id, dims, setDims) => {
         console.log("BOX OPTIONS", id, dims, size, dimensions, size.height/dimensions.height, size.width/dimensions.width, pixelsToInch)
+        setCompletedCrop(dims)
         setBoxOptions(<div>
             Box Number: {id+1}
             <br />
@@ -64,18 +68,24 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
     return <div id="imgbox">
        
         <img 
+            key={`${new Date()}-IMAGE BOX-SOURCE IMAGE`}
             src={croppedImage} 
             id="imgbound"
             ref={imageRef}
             onLoad={onLoad}
         />
         
-         <div>{dimensions.width} in x {dimensions.height} in</div>
+        <div>{dimensions.width} in x {dimensions.height} in</div>
         <br />
         <button onClick={addBox}>ADD BOX</button>
         <br />
         {boxes}
         {boxOptions}
+
+        <canvas
+            key={`${new Date()}-IMAGE BOX-BOUND IMAGE`}
+            ref={previewCanvasRef}
+        />
     </div>
 }
 

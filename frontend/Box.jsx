@@ -1,17 +1,18 @@
-import React from "react"
+import React, {useEffect} from "react"
 import useDimensions from "./hooks/useDimensions"
 import {Rnd} from 'react-rnd';
-import { useEffect } from "react/cjs/react.production.min";
 
 const Box = ({defaultDimensions, onDimChange}) => {
-    const [dimensions, setDimensions, setDimension] = useDimensions(defaultDimensions)
+    const [dimensions, setDimensions] = useDimensions(defaultDimensions)
+   
+    console.log("BOX", dimensions)
 
     useEffect(() => {
         onDimChange(dimensions, setDimensions)
     }, [dimensions])
 
     return <Rnd
-        key={`${new Date()}-${JSON.stringify(dimensions)}-RESIZABLE`}
+        key={`${new Date()}-${JSON.stringify(dimensions)}-RESIZABLE-BOX`}
         default={{
             x: dimensions.x,
             y: dimensions.y,
@@ -41,7 +42,7 @@ const Box = ({defaultDimensions, onDimChange}) => {
             }))
         }}
     >
-        <div style={{width: "100%", height: "100%"}} onClick={() => onDimChange(dimensions, setDimensions)} />
+        <div style={{width: "100%", height: "100%"}} onClick={() => onDimChange(dimensions, setDimensions)}  />
     </Rnd>
 }
 

@@ -5,6 +5,8 @@ export const cropPreview = ( image, canvas, crop ) => {
     throw new Error('No 2d context')
   }
 
+  console.log("CROP PREVIEW", image, canvas, crop)
+
   const scaleX = image.naturalWidth / image.width
   const scaleY = image.naturalHeight / image.height
   const pixelRatio = window.devicePixelRatio || 1
