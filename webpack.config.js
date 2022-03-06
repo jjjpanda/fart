@@ -58,7 +58,7 @@ module.exports = {
 		new HtmlWebpackPlugin({
 			template: path.resolve(__dirname, "frontend/app.html"),
 			chunks : ["app"],
-			filename: "app.html"
+			filename: "index.html"
 		})
 	]
 }

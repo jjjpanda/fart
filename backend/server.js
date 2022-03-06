@@ -4,7 +4,7 @@ const app = express()
 const path = require("path") 
 
 app.use('/', express.static(path.join(__dirname, "../dist"), {
-    index: "app.html"
+    index: "index.html"
 }))
 
 const port = 3000
