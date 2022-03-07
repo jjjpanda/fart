@@ -4,12 +4,16 @@ import Box from './Box'
 import SizeSelect from "./SizeSelect"
 import useDimensions from "./hooks/useDimensions"
 
-const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
+const ImageBox = ({croppedImage, crop, completedCrop, dimensions, defaultBoxState}) => {
     const [u, sU, sC, setCompletedCrop, previewCanvasRef, onImageLoad] = useCrop(dimensions);
     const [size, setSize] = useDimensions()
-    const [boxes, setBoxes] = useState([])
+    const [boxes, setBoxes] = useState(defaultBoxState ? defaultBoxState : [])
     const [boxNumber, setBoxNumber] = useState(0)
     const [boxOptions, setBoxOptions] = useState(<div></div>)
+
+    const saveProject = () => {
+        console.log(croppedImage, crop, completedCrop, dimensions, boxes.map(box => box.dimensions))
+    }
 
     console.log(dimensions, crop, completedCrop, size)
     const pixelsToInch = (size.height/dimensions.height + size.width/dimensions.width)/2
@@ -26,21 +30,33 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
 
     const addBox = () => {
         setBoxes(oldBoxes => ([...oldBoxes, 
-            <Box
-                defaultDimensions={{
+            {
+                element: <Box
+                    defaultDimensions={{
+                        width: size.width/10, 
+                        height: size.height/10, 
+                        x: 0, 
+                        y: 0
+                    }} 
+                    onDimChange={(dims, setDims) => renderBoxOptions(boxNumber, dims, setDims)}
+                />,
+                dimensions: {
                     width: size.width/10, 
                     height: size.height/10, 
                     x: 0, 
                     y: 0
-                }} 
-                onDimChange={(dims, setDims) => renderBoxOptions(boxNumber, dims, setDims)}
-            />
+                }
+            }
         ]))
         setBoxNumber(boxNumber + 1)
     }
 
     const renderBoxOptions = (id, dims, setDims) => {
         console.log("BOX OPTIONS", id, dims, size, dimensions, size.height/dimensions.height, size.width/dimensions.width, pixelsToInch)
+        setBoxes(oldBoxes => {
+            oldBoxes[id].dimensions = dims
+            return oldBoxes
+        })
         setCompletedCrop(dims)
         setBoxOptions(<div>
             Box Number: {id+1}
@@ -79,8 +95,12 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions}) => {
         <br />
         <button onClick={addBox}>ADD BOX</button>
         <br />
-        {boxes}
+        {boxes.map(box => box.element)}
         {boxOptions}
+
+        <br />
+            <button onClick={saveProject}>SAVE PROJECT</button>
+        <br />
 
         <canvas
             key={`${new Date()}-IMAGE BOX-BOUND IMAGE`}
