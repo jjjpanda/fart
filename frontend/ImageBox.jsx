@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react"
+import React, {useRef, useState, useEffect} from "react"
 import useCrop from "./hooks/useCrop"
 import Box from './Box'
 import SizeSelect from "./SizeSelect"
@@ -7,18 +7,42 @@ import useDimensions from "./hooks/useDimensions"
 const ImageBox = ({croppedImage, crop, completedCrop, dimensions, defaultBoxState}) => {
     const [u, sU, sC, setCompletedCrop, previewCanvasRef, onImageLoad] = useCrop(dimensions);
     const [size, setSize] = useDimensions()
-    const [boxes, setBoxes] = useState(defaultBoxState ? defaultBoxState : [])
+    const [firstLoad, setFirstLoad] = useState(true)
+    const [boxes, setBoxes] = useState([])
     const [boxNumber, setBoxNumber] = useState(0)
     const [boxOptions, setBoxOptions] = useState(<div></div>)
-
-    const saveProject = () => {
-        console.log(croppedImage, crop, completedCrop, dimensions, boxes.map(box => box.dimensions))
-    }
-
-    console.log(dimensions, crop, completedCrop, size)
-    const pixelsToInch = (size.height/dimensions.height + size.width/dimensions.width)/2
-
     const imageRef = useRef()
+    
+
+    console.log(dimensions, crop, completedCrop, size, boxes, boxNumber, boxOptions)
+
+    const saveProject = async () => {
+        console.log("SAVE STAGE 1", croppedImage, crop, completedCrop, dimensions, boxes.map(box => box.dimensions))
+        const croppedImageBlob =  await fetch(croppedImage).then(r => r.blob());
+        const reader = new FileReader();
+
+        reader.addEventListener("load", () => {
+          const croppedImageText = reader.result;
+          console.log("SAVE STAGE 2", croppedImageBlob, croppedImageText)
+          const data = {
+              croppedImage: croppedImageText,
+              crop,
+              completedCrop,
+              dimensions,
+              defaultBoxState: boxes.map(box => box.dimensions)
+          }
+  
+          const element = document.createElement("a")
+          const file = new Blob([JSON.stringify(data)], {type: 'application/json'})
+          element.href = URL.createObjectURL(file);
+          element.download = "project.fart"
+          element.click();
+        }, false);
+      
+        if (croppedImageBlob) {
+          reader.readAsDataURL(croppedImageBlob);
+        }
+    }
 
     const onLoad = (e) => {
         setSize({
@@ -28,17 +52,33 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions, defaultBoxStat
         onImageLoad(e)
     }
 
+    useEffect(() => {
+        if(size.width != 0 && size.height != 0 && defaultBoxState && firstLoad){
+            setBoxes(defaultBoxState.map((box, index) => ({
+                element: <Box
+                    key={`${index}-BOX NUMBER-${new Date()}`}
+                    defaultDimensions={box} 
+                    onDimChange={(dims, setDims) => renderBoxOptions(index, dims, setDims, size)}
+                />,
+                dimensions: box
+            })))
+            setBoxNumber(defaultBoxState.length)
+            setFirstLoad(false)
+        }
+    }, [size])
+
     const addBox = () => {
         setBoxes(oldBoxes => ([...oldBoxes, 
             {
                 element: <Box
+                    key={`${boxNumber}-BOX NUMBER-${new Date()}`}
                     defaultDimensions={{
                         width: size.width/10, 
                         height: size.height/10, 
                         x: 0, 
                         y: 0
                     }} 
-                    onDimChange={(dims, setDims) => renderBoxOptions(boxNumber, dims, setDims)}
+                    onDimChange={(dims, setDims) => renderBoxOptions(boxNumber, dims, setDims, size)}
                 />,
                 dimensions: {
                     width: size.width/10, 
@@ -51,7 +91,8 @@ const ImageBox = ({croppedImage, crop, completedCrop, dimensions, defaultBoxStat
         setBoxNumber(boxNumber + 1)
     }
 
-    const renderBoxOptions = (id, dims, setDims) => {
+    const renderBoxOptions = (id, dims, setDims, size) => {
+        const pixelsToInch = (size.height/dimensions.height + size.width/dimensions.width)/2
         console.log("BOX OPTIONS", id, dims, size, dimensions, size.height/dimensions.height, size.width/dimensions.width, pixelsToInch)
         setBoxes(oldBoxes => {
             oldBoxes[id].dimensions = dims
